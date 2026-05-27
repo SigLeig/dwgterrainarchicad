@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dwgterrainarchicad"
+version = "0.1.0"
+description = "Command line utilities for CAD/BIM terrain workflows."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "dwgterrainarchicad contributors" }]
+dependencies = []
+
+[project.scripts]
+step-to-ifc = "step_to_ifc.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
