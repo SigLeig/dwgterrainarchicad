@@ -41,6 +41,67 @@ class ExtractionResult:
     report: ExtractionReport
 
 
+@dataclass
+class PreviewResult:
+    source_path: Path
+    points: list[tuple[float, float]]
+    bounds: tuple[float, float, float, float]
+    total_points: int
+
+
+def read_preview_points(
+    path: Path,
+    layers: tuple[str, ...] = (),
+    max_points: int = 30_000,
+) -> PreviewResult:
+    """Read enough XY points to draw a lightweight overview of a DXF file."""
+
+    doc = ezdxf.readfile(path)
+    modelspace = doc.modelspace()
+    max_points = max(1, max_points)
+
+    min_x = math.inf
+    min_y = math.inf
+    max_x = -math.inf
+    max_y = -math.inf
+    total_points = 0
+    sample_step = 1
+    preview_points: list[tuple[float, float]] = []
+
+    for entity in modelspace:
+        layer = getattr(entity.dxf, "layer", "")
+        if layers and not _matches_layer(layer, layers):
+            continue
+
+        for x, y, _ in _extract_entity_points(entity, sample_distance=0.0):
+            min_x = min(min_x, x)
+            min_y = min(min_y, y)
+            max_x = max(max_x, x)
+            max_y = max(max_y, y)
+
+            total_points += 1
+            if total_points % sample_step == 0:
+                preview_points.append((x, y))
+
+            if len(preview_points) > max_points * 2:
+                preview_points = preview_points[::2]
+                sample_step *= 2
+
+    if total_points == 0:
+        raise ValueError("No drawable points were found in the DXF file.")
+
+    if len(preview_points) > max_points:
+        stride = math.ceil(len(preview_points) / max_points)
+        preview_points = preview_points[::stride]
+
+    return PreviewResult(
+        source_path=path,
+        points=preview_points,
+        bounds=(min_x, min_y, max_x, max_y),
+        total_points=total_points,
+    )
+
+
 def read_terrain_points(path: Path, options: ReadOptions) -> ExtractionResult:
     doc = ezdxf.readfile(path)
     modelspace = doc.modelspace()

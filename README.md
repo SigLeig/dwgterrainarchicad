@@ -82,6 +82,26 @@ to avoid placing the Archicad model far from project origin. The original offset
 is saved in the metadata file. Use `--origin none` if you need unshifted world
 coordinates.
 
+## Visual area selection
+
+If coordinates are too difficult, open the small crop window instead:
+
+```powershell
+py -m pip install --upgrade git+https://github.com/SigLeig/dwgterrainarchicad.git@cursor/dwg-to-archicad-terrain-b866
+py -m dwgterrainarchicad.gui
+```
+
+In the window:
+
+1. Click `Velg DXF/DWG` and choose the DXF file from ODA File Converter.
+2. Click `Vis tegning` and wait until the drawing appears.
+3. Drag a rectangle around the area you want.
+4. Click `Eksporter valgt omrade`.
+5. Import the generated `*_archicad_surveyor.txt` file in Archicad.
+
+You can also run `start_area_selector.ps1`, which installs/updates the tool and
+opens the same window.
+
 ## Limit the converted area
 
 Large map files can create millions of points. Use `--bbox` to export only one

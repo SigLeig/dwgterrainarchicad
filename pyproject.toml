@@ -19,6 +19,7 @@ test = [
 
 [project.scripts]
 dwg-terrain-archicad = "dwgterrainarchicad.cli:main"
+dwg-terrain-crop = "dwgterrainarchicad.gui:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

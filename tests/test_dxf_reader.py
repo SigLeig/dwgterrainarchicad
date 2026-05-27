@@ -2,7 +2,7 @@ from pathlib import Path
 
 import ezdxf
 
-from dwgterrainarchicad.dxf_reader import ReadOptions, read_terrain_points
+from dwgterrainarchicad.dxf_reader import ReadOptions, read_preview_points, read_terrain_points
 
 
 def _write_sample_dxf(path: Path) -> None:
@@ -62,3 +62,14 @@ def test_bbox_limits_exported_area(tmp_path: Path) -> None:
         (500_005, 6_700_000, 42.0),
     ]
     assert result.report.skipped_bbox == 3
+
+
+def test_preview_points_reports_bounds_without_sampling_everything(tmp_path: Path) -> None:
+    dxf_path = tmp_path / "terrain.dxf"
+    _write_sample_dxf(dxf_path)
+
+    preview = read_preview_points(dxf_path, layers=("KOTER",), max_points=2)
+
+    assert preview.bounds == (500_000, 6_700_000, 500_010, 6_700_010)
+    assert preview.total_points == 3
+    assert len(preview.points) <= 2
