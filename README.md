@@ -30,6 +30,13 @@ Convert a STEP file to IFC:
 step-to-ifc model.step model.ifc
 ```
 
+You can also run the local launcher directly from the repository without
+installing first:
+
+```bash
+./step-to-ifc model.step model.ifc
+```
+
 If the output path is omitted, the converter writes beside the input with the
 same filename and an `.ifc` extension:
 

@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+"""Local launcher for the STEP to IFC converter."""
+
+from pathlib import Path
+import sys
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from step_to_ifc.cli import main
+
+
+raise SystemExit(main())
