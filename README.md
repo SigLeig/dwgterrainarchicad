@@ -19,7 +19,7 @@ set `STEP_TO_IFC_FREECAD_CMD=/path/to/FreeCADCmd`.
 ### Install locally
 
 ```bash
-python -m pip install -e .
+python3 -m pip install -e .
 ```
 
 ### Usage
@@ -60,5 +60,5 @@ The parser also accepts equivalent forms such as `x:90`, `y=-90` and `+z`.
 ### Run tests
 
 ```bash
-PYTHONPATH=src python -m unittest
+PYTHONPATH=src python3 -m unittest discover -s tests
 ```
