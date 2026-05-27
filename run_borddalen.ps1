@@ -12,6 +12,19 @@ $InputFile = "C:\Users\Sigmund\Downloads\Filemail.com - Bordalen\t_fkb_borddalen
 $OutputDir = ".\borddalen-terrain"
 $Layers = "KOTE*,TERRAIN*,HOYDE*"
 $SampleDistance = 2
+$IncludeZeroElevation = $true
+
+# Optional area crop. Leave blank to convert the whole file.
+# Fill these with original map coordinates when you only want one area.
+# Example:
+# $MinX = 355500
+# $MinY = 6636500
+# $MaxX = 355900
+# $MaxY = 6636900
+$MinX = ""
+$MinY = ""
+$MaxX = ""
+$MaxY = ""
 
 # Leave this empty to auto-detect ODA File Converter.
 # If auto-detection fails, set this to the full .exe path, not just the folder.
@@ -63,6 +76,21 @@ $Arguments = @(
     "--sample-distance", $SampleDistance
 )
 
+if ($IncludeZeroElevation) {
+    $Arguments += "--include-zero-elevation"
+}
+
+$CropValues = @($MinX, $MinY, $MaxX, $MaxY)
+$FilledCropValues = @($CropValues | Where-Object { $_ -ne "" })
+if ($FilledCropValues.Count -eq 4) {
+    $Arguments += @("--bbox", "$MinX,$MinY,$MaxX,$MaxY")
+    Write-Host "Avgrenser område: X $MinX til $MaxX, Y $MinY til $MaxY"
+}
+elseif ($FilledCropValues.Count -ne 0) {
+    Write-Error "Fyll inn alle fire verdier for område: MinX, MinY, MaxX og MaxY. Eller la alle være blanke."
+    exit 1
+}
+
 if ($Converter -eq "") {
     $Converter = Find-OdaFileConverter
 }
@@ -87,7 +115,7 @@ else {
     Write-Host "Programmet kan fortsatt virke hvis ODAFileConverter.exe eller dwgread ligger i PATH."
 }
 
-dwg-terrain-archicad @Arguments
+& py -m dwgterrainarchicad @Arguments
 
 Write-Host ""
 Write-Host "Ferdig. Importer *_archicad_surveyor.txt fra $OutputDir i Archicad som surveyor/mesh-data."

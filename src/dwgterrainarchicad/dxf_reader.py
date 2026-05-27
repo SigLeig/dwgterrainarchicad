@@ -15,6 +15,7 @@ from .models import TerrainPoint, deduplicate_points
 @dataclass(frozen=True)
 class ReadOptions:
     layers: tuple[str, ...] = ()
+    bbox: tuple[float, float, float, float] | None = None
     sample_distance: float = 0.0
     include_zero_elevation: bool = False
     min_z: float | None = None
@@ -27,6 +28,7 @@ class ExtractionReport:
     source_path: Path
     points_before_dedupe: int = 0
     points_after_dedupe: int = 0
+    skipped_bbox: int = 0
     skipped_zero_elevation: int = 0
     skipped_z_filter: int = 0
     scanned_entities: Counter[str] = field(default_factory=Counter)
@@ -80,6 +82,11 @@ def _matches_layer(layer: str, patterns: Sequence[str]) -> bool:
 def _is_allowed(
     point: TerrainPoint, options: ReadOptions, report: ExtractionReport
 ) -> bool:
+    if options.bbox is not None:
+        min_x, min_y, max_x, max_y = options.bbox
+        if not (min_x <= point.x <= max_x and min_y <= point.y <= max_y):
+            report.skipped_bbox += 1
+            return False
     if not options.include_zero_elevation and math.isclose(point.z, 0.0, abs_tol=1e-9):
         report.skipped_zero_elevation += 1
         return False

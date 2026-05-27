@@ -41,3 +41,24 @@ def test_skips_zero_elevation_by_default(tmp_path: Path) -> None:
 
     assert result.points == []
     assert result.report.skipped_zero_elevation == 1
+
+
+
+def test_bbox_limits_exported_area(tmp_path: Path) -> None:
+    dxf_path = tmp_path / "terrain.dxf"
+    _write_sample_dxf(dxf_path)
+
+    result = read_terrain_points(
+        dxf_path,
+        ReadOptions(
+            layers=("KOTER",),
+            bbox=(500_000, 6_700_000, 500_005, 6_700_001),
+            sample_distance=5.0,
+        ),
+    )
+
+    assert [(point.x, point.y, point.z) for point in result.points] == [
+        (500_000, 6_700_000, 42.0),
+        (500_005, 6_700_000, 42.0),
+    ]
+    assert result.report.skipped_bbox == 3

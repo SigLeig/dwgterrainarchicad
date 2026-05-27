@@ -89,6 +89,7 @@ def _write_metadata(
         "export_bounds": _bounds_dict(shifted_points),
         "points_before_dedupe": report.points_before_dedupe,
         "points_after_dedupe": report.points_after_dedupe,
+        "skipped_bbox": report.skipped_bbox,
         "skipped_zero_elevation": report.skipped_zero_elevation,
         "skipped_z_filter": report.skipped_z_filter,
         "scanned_entities": dict(report.scanned_entities),

@@ -21,6 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     output_dir = Path(args.output_dir).expanduser()
     try:
         origin_mode = _parse_origin(args.origin)
+        bbox = _parse_bbox(args.bbox)
     except ValueError as exc:
         parser.error(str(exc))
 
@@ -31,6 +32,7 @@ def main(argv: list[str] | None = None) -> int:
                 dxf_path,
                 ReadOptions(
                     layers=_parse_layers(args.layers),
+                    bbox=bbox,
                     sample_distance=args.sample_distance,
                     include_zero_elevation=args.include_zero_elevation,
                     min_z=args.min_z,
@@ -64,6 +66,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Origin offset: X={origin[0]:.3f}, Y={origin[1]:.3f}")
     for label, path in outputs.items():
         print(f"{label}: {path}")
+    if result.report.skipped_bbox:
+        print(f"Skipped points outside bbox: {result.report.skipped_bbox}")
     if result.report.skipped_zero_elevation:
         print(
             "Skipped zero-elevation points: "
@@ -103,6 +107,13 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--bbox",
+        help=(
+            "Only export points inside this coordinate box: minX,minY,maxX,maxY. "
+            "Use original DWG/DXF coordinates, usually UTM meters."
+        ),
+    )
+    parser.add_argument(
         "--sample-distance",
         type=float,
         default=0.0,
@@ -139,6 +150,24 @@ def _parse_layers(value: str | None) -> tuple[str, ...]:
     if not value:
         return ()
     return tuple(part.strip() for part in value.split(",") if part.strip())
+
+
+def _parse_bbox(value: str | None) -> tuple[float, float, float, float] | None:
+    if not value:
+        return None
+
+    parts = [part.strip() for part in value.split(",")]
+    if len(parts) != 4:
+        raise ValueError("--bbox must be minX,minY,maxX,maxY")
+
+    try:
+        min_x, min_y, max_x, max_y = (float(part) for part in parts)
+    except ValueError as exc:
+        raise ValueError("--bbox values must be numbers") from exc
+
+    if min_x >= max_x or min_y >= max_y:
+        raise ValueError("--bbox must have min values before max values")
+    return (min_x, min_y, max_x, max_y)
 
 
 def _parse_origin(value: str) -> str | tuple[float, float]:

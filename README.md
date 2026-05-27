@@ -82,6 +82,30 @@ to avoid placing the Archicad model far from project origin. The original offset
 is saved in the metadata file. Use `--origin none` if you need unshifted world
 coordinates.
 
+## Limit the converted area
+
+Large map files can create millions of points. Use `--bbox` to export only one
+rectangle from the original DWG/DXF coordinates:
+
+```powershell
+py -m dwgterrainarchicad `
+  "C:\Users\Sigmund\Downloads\Filemail.com - Bordalen\Output\t_fkb_borddalen_utm32.dxf" `
+  --output-dir "C:\Users\Sigmund\Downloads\borddalen-terrain-small" `
+  --sample-distance 20 `
+  --include-zero-elevation `
+  --bbox "355500,6636500,355900,6636900"
+```
+
+The order is:
+
+```text
+min X, min Y, max X, max Y
+```
+
+For UTM map files these numbers are meters. You can also edit
+`run_borddalen.ps1` and fill in `$MinX`, `$MinY`, `$MaxX`, and `$MaxY` near the
+top of the file.
+
 ## Import into Archicad
 
 1. Run the converter and open the generated output directory.
