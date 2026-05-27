@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dwgterrainarchicad"
+version = "0.1.0"
+description = "Convert DWG/DXF contour data into Archicad-friendly terrain point files."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "ezdxf>=1.4",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+dwg-terrain-archicad = "dwgterrainarchicad.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
